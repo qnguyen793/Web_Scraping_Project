@@ -14,12 +14,14 @@ BOT_NAME = 'opentable'
 SPIDER_MODULES = ['opentable.spiders']
 NEWSPIDER_MODULE = 'opentable.spiders'
 
+ITEM_PIPELINES = {'opentable.pipelines.WriteItemPipeline': 100}
+
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'opentable (+http://www.yourdomain.com)'
 
 # Obey robots.txt rules
-ROBOTSTXT_OBEY = True
+ROBOTSTXT_OBEY = False
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS = 32

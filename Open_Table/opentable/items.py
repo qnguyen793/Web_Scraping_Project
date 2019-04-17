@@ -21,8 +21,8 @@ class OpentableItem(scrapy.Item):
     price = scrapy.Field()
     dining_style = scrapy.Field()
     dress_code = scrapy.Field()
-    chef = scrapy.Field()
+    # chef = scrapy.Field()
     num_reviews = scrapy.Field()
-    recommendation_percentage = scrapy.Field()
+    # recommendation_percentage = scrapy.Field()
 
 
