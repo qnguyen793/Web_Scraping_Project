@@ -19,7 +19,7 @@ class OpenTableSpider(Spider):
 
         # Yield the requests to different search result urls, 
         # using parse_result_page function to parse the response.
-        for url in result_urls[:1]:
+        for url in result_urls:
             yield Request(url=url, callback=self.parse_result_page)
 
 
@@ -31,7 +31,7 @@ class OpenTableSpider(Spider):
 
         # Yield the requests to the details pages, 
         # using parse_detail_page function to parse the response.
-        for url in detail_urls[:1]:
+        for url in detail_urls:
             yield Request(url='https://www.opentable.com' + url, callback=self.parse_detail_page)
 
     def parse_detail_page(self, response):
@@ -50,7 +50,9 @@ class OpenTableSpider(Spider):
         dress_code = response.xpath('//div[@class="_199894c6" and ./div[@class="_252cc398 _40f1eb59"]/span/text()="Dress code"]/div[@class="_16c8fd5e _1f1541e1"]/text()').extract_first()
         chef = response.xpath('//div[@itemprop="employees"]/text()').extract()
         num_reviews = response.xpath('//span[@itemprop="reviewCount"]/text()').extract_first()
-        recommendation_percentage = response.xpath('//div[@class="oc-reviews-dfc07aec" and ./span/text()="would recommend it to a friend"]/text()').extract_first()[0:3]
+        # recommendation_percentage = response.xpath('//div[@class="oc-reviews-dfc07aec" and ./span/text()="would recommend it to a friend"]/text()').extract_first()[0:3]
+        recommendation_percentage = response.xpath('//div[@class="oc-reviews-dfc07aec" and ./span/text()="would recommend it to a friend"]/text()').extract_first().split()[0]
+
 
         item = OpentableItem()
         item['restaurant'] = restaurant
