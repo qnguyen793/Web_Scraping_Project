@@ -5,7 +5,7 @@ import re
 class OpenTableSpider(Spider):
     name = 'opentable_spider'
     allowed_urls = ['https://www.opentable.com/']
-    start_urls = ['https://www.opentable.com/s/?currentview=list&size=100&sort=Popularity&areaId=Macro%3A16&covers=2&dateTime=2019-07-10+19%3A00&metroId=8&regionIds=16']
+    start_urls = ['https://www.opentable.com/s/?covers=2&currentview=list&datetime=2019-07-10+19%3A00&metroid=8&regionids=16&size=100&sort=Popularity']
 
     def parse(self, response):
         # Find the total number of pages in the result so that we can decide how many urls to scrape next
@@ -15,7 +15,7 @@ class OpenTableSpider(Spider):
 
         
         # List comprehension to construct all the urls
-        result_urls = ['https://www.opentable.com/s/?currentview=list&size=100&sort=Popularity&areaId=Macro%3A16&covers=2&dateTime=2019-07-10+19%3A00&metroId=8&regionIds=16'] + ['https://www.opentable.com/s/?covers=2&currentview=list&datetime=2019-07-10+19%3A00&metroid=8&regionids=16&size=100&sort=Popularity&from={}'.format(x) for x in range(100,(total_pages-1)*100,100)]
+        result_urls = ['https://www.opentable.com/s/?covers=2&currentview=list&datetime=2019-07-10+19%3A00&metroid=8&regionids=16&size=100&sort=Popularity'] + ['https://www.opentable.com/s/?covers=2&currentview=list&datetime=2019-07-10+19%3A00&metroid=8&regionids=16&size=100&sort=Popularity&from={}'.format(x) for x in range(100,(total_pages-1)*100,100)]
 
         # Yield the requests to different search result urls, 
         # using parse_result_page function to parse the response.
@@ -27,12 +27,12 @@ class OpenTableSpider(Spider):
         # This fucntion parses the search result page.
 
         # We are looking for url of the detail page.
-        detail_urls = response.xpath('//div[@class="rest-row-header"]/a/@href').extract_first()
+        detail_urls = response.xpath('//div[@class="rest-row-header"]/a/@href').extract()
 
         # Yield the requests to the details pages, 
         # using parse_detail_page function to parse the response.
-        for url in detail_urls:
-            yield Request(url='https://www.opentable.com/' + url, callback=self.parse_detail_page)
+        for url in detail_urls[:1]:
+            yield Request(url='https://www.opentable.com' + url, callback=self.parse_detail_page)
 
     def parse_detail_page(self, response):
 
@@ -45,11 +45,12 @@ class OpenTableSpider(Spider):
         cuisine = response.xpath('//span[@itemprop="servesCuisine"]/text()').extract_first()
         location = response.xpath('//div[@class="_16c8fd5e _1f1541e1"]/a[@target="_self"]/text()').extract_first()
         price = response.xpath('//span[@itemprop="priceRange"]/text()').extract_first()
-        dining_style = response.xpath('//div[@class="_16c8fd5e _1f1541e1"]/text()').extract()[2]
-        dress_code = response.xpath('//div[@class="_16c8fd5e _1f1541e1"]/text()').extract()[3]
-        # chef = response.xpath().extract()
+        # dining_style = response.xpath('//div[@class="_16c8fd5e _1f1541e1"]/text()').extract()[2]
+        dining_style = response.xpath('//div[@class="_199894c6" and ./div[@class="_252cc398 _40f1eb59"]/span/text()="Dining Style"]/div[@class="_16c8fd5e _1f1541e1"]/text()').extract_first()
+        dress_code = response.xpath('//div[@class="_199894c6" and ./div[@class="_252cc398 _40f1eb59"]/span/text()="Dress code"]/div[@class="_16c8fd5e _1f1541e1"]/text()').extract_first()
+        chef = response.xpath('//div[@itemprop="employees"]/text()').extract()
         num_reviews = response.xpath('//span[@itemprop="reviewCount"]/text()').extract_first()
-        # recommendation_percentage = response.xpath('//div[@class="oc-reviews-dfc07aec"]/text()').extract()
+        recommendation_percentage = response.xpath('//div[@class="oc-reviews-dfc07aec" and ./span/text()="would recommend it to a friend"]/text()').extract_first()[0:3]
 
         item = OpentableItem()
         item['restaurant'] = restaurant
@@ -63,6 +64,8 @@ class OpenTableSpider(Spider):
         item['price'] = price
         item['dining_style'] = dining_style
         item['dress_code'] = dress_code
+        item['chef'] = chef
         item['num_reviews'] = num_reviews
+        item['recommendation_percentage'] = recommendation_percentage
 
         yield item 
