@@ -5,7 +5,8 @@ import re
 class OpenTableSpider(Spider):
     name = 'opentable_spider'
     allowed_urls = ['https://www.opentable.com/']
-    start_urls = ['https://www.opentable.com/s/?covers=2&currentview=list&datetime=2019-07-10+19%3A00&metroid=8&regionids=16&size=100&sort=Popularity']
+    start_urls = ['https://www.opentable.com/s/?covers=2&dateTime=2019-05-03%2019%3A00&metroId=8&regionIds=16&enableSimpleCuisines=true&includeTicketedAvailability=true&pageType=0']
+    # start_urls = ['https://www.opentable.com/s/?covers=2&currentview=list&datetime=2019-07-10+19%3A00&metroid=8&regionids=16&size=100&sort=Popularity']
 
     def parse(self, response):
         # Find the total number of pages in the result so that we can decide how many urls to scrape next
@@ -15,7 +16,7 @@ class OpenTableSpider(Spider):
 
         
         # List comprehension to construct all the urls
-        result_urls = ['https://www.opentable.com/s/?covers=2&currentview=list&datetime=2019-07-10+19%3A00&metroid=8&regionids=16&size=100&sort=Popularity'] + ['https://www.opentable.com/s/?covers=2&currentview=list&datetime=2019-07-10+19%3A00&metroid=8&regionids=16&size=100&sort=Popularity&from={}'.format(x) for x in range(100,(total_pages-1)*100,100)]
+        result_urls = ['https://www.opentable.com/s/?covers=2&dateTime=2019-05-03%2019%3A00&metroId=8&regionIds=16&enableSimpleCuisines=true&includeTicketedAvailability=true&pageType=0'] + ['https://www.opentable.com/s/?covers=2&currentview=list&datetime=2019-05-03+19%3A00&metroid=8&regionids=16&size=100&sort=Popularity&from={}'.format(x) for x in range(100,(total_pages-1)*100,100)]
 
         # Yield the requests to different search result urls, 
         # using parse_result_page function to parse the response.
